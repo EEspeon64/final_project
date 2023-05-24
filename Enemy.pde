@@ -184,3 +184,134 @@ class Ganon implements Enemy {
     return false;
   }
 }
+
+class Missile implements Enemy {
+  float x;
+  float y;
+  float dx;
+  float dy;
+  float spawnx;
+  float spawny;
+  float time;
+  Missile(float posx, float posy, float t) {
+    x = posx;
+    y = posy;
+    spawnx = posx;
+    spawny = posy;
+    time = t;
+  }
+  void all() {
+    show();
+    if (paused == false && !dead()) {
+      act();
+      takeDamage();
+      dealDamage();
+    }
+  }
+  void act() {
+    time++;
+    x += dx;
+    y += dy;
+    if (dist(playerx, playery, spawnx, spawny) - 35>=dist(x, y, spawnx, spawny)) {
+      if (x>=playerx) {
+        dx=-5;
+      }
+      if (x<=playerx) {
+        dx=5;
+      }
+      if (y>=playery) {
+        dy=-5;
+      }
+      if (y<=playery) {
+        dy=5;
+      }
+    }
+  }
+  void show() {
+    fill(175, 175, 225);
+    ellipse(x, y, 40, 40);
+  }
+  void takeDamage() {
+  }
+  void dealDamage() {
+    if (dist(x, y, playerx, playery)<45) {
+      if (shield==false) {
+        playerHealth--;
+      } else {
+        playerHealth=playerHealth-0.2;
+      }
+    }
+  }
+  boolean dead() {
+    if (time > 110) return true;
+    return false;
+  }
+}
+
+class Specter implements Enemy {
+  float x;
+  float y;
+  float theta;
+  float health;
+  Specter() {
+    theta = 0;
+    health = 200;
+    x = 500 + 300*cos(theta);
+    y = 375 + 250*sin(theta);
+  }
+  void all() {
+    if (!dead()) {
+      show();
+      if (paused == false) {
+        act();
+        takeDamage();
+        dealDamage();
+      }
+    }
+  }
+  void act() {
+    theta += 0.025;
+    if (theta > 6.28) theta = 0;
+    x = 500 + 300*cos(theta);
+    y = 375 + 250*sin(theta);
+  }
+  void show() {
+    //Health bar
+    stroke(0, 0, 0);
+    strokeWeight(2);
+    noFill();
+    rect(x - 51, y - 66, 101, 11);
+    fill(100, 100, 200);
+    noStroke();
+    rect(x - 50, y - 65, health/2, 10);
+    //body
+    fill(175, 175, 225);
+    ellipse(x, y, 100, 100);
+  }
+  void takeDamage() {
+    if (dist(swordx2, swordy2, x, y)<=25) {
+      if (gotswordr==true) {
+        health--;
+      }
+      if (gotswordm==true) {
+        health = health-2;
+      }
+    }
+    if (dist(playerx, playery, x, y) < spinSize && spin == true) {
+      if (gotswordr==true) {
+        health = health - 2;
+      }
+      if (gotswordm==true) {
+        health = health - 3;
+      }
+    }
+  }
+  void dealDamage() {
+  }
+  boolean dead() {
+    if (health <= 0) return true;
+    return false;
+  }
+  float getx() {return x;}
+  float gety() {return y;}
+}
