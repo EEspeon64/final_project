@@ -50,19 +50,6 @@ float time2=0;
 float scoretime=72000;
 float score=0;
 float finalscore;
-float blueMissilex=500;
-float blueMissiley=375;
-float blueMissile2x=500;
-float blueMissile2y=375;
-float bluexSpeed=0;
-float blueySpeed=0;
-float bluex2Speed=0;
-float bluey2Speed=0;
-float bluetheta=0;
-float bluethetaSpeed=0;
-float bluebossx=-100;
-float bluebossy=-100;
-float bluebossHealth=250;
 float greenbossx=500;
 float greenbossy=375;
 float greenbossHealth=150;
@@ -79,6 +66,7 @@ boolean spin=false;
 boolean paused=false;
 boolean shield=false;
 Enemy[] enemies = new Enemy[5];
+Specter specter;
 PImage title;
 SoundFile fieldTheme;
 SoundFile titleTheme;
@@ -307,12 +295,14 @@ void draw() {
     }
     //Not link
     link();
+    //borders
     if (playery<40 && gottriblue==false) {
-      screen=14;
+      screen = 14;
       time=0;
       playery=720;
-    }
-    if (playery > 700 && gottrigreen == false) {
+      enemies[0] = new Missile(500, 375, 0);
+      enemies[1] = new Missile(500, 375, 55);
+    } else if (playery > 700 && gottrigreen == false) {
       screen=16;
       playery=30;
       greenpath=0;
@@ -322,8 +312,7 @@ void draw() {
       tree4pos=random(-25, 25);
       tree5pos=random(-25, 25);
       time=0;
-    }
-    if (playerx > 975 ) { //&& gottriblue==true
+    } else if (playerx > 975 ) { //&& gottriblue==true
       screen=5;
       playerx=40;
       enemies[0] = new Boko(900, 325);
@@ -335,56 +324,39 @@ void draw() {
   }
   //wisdom branch screen 1
   if (screen==14) {
-    time=time+1;
-    time2=time2+1;
-    //take damage
-    if ((dist(blueMissilex, blueMissiley, playerx, playery)<45)||(dist(blueMissile2x, blueMissile2y, playerx, playery)<45)) {
-      if (shield==false) {
-        playerHealth--;
-      } else {
-        playerHealth=playerHealth-0.2;
-      }
-    }
-    if (time>=110) {
-      time=0;
-      blueMissilex=500;
-      blueMissiley=375;
-    }
-    if (time>=54&&time<=56) {
-      blueMissile2x=500;
-      blueMissile2y=375;
-    }
-    //move missiles
-    moveBlueMissiles();
+    time++;
+    // graphics
     background(100, 110, 110);
     fill(200, 200, 250);
     ellipse(500, 375, 600, 400);
-    fill(175, 175, 225);
-    ellipse(blueMissilex, blueMissiley, 40, 40);
-    ellipse(blueMissile2x, blueMissile2y, 40, 40);
     noFill();
     strokeWeight(30);
     stroke(100, 150, 100, 100);
     rect(0, 0, 1000, 750);
     noStroke();
+    enemies[0].all();
+    enemies[1].all();
+    if (enemies[0].dead()) enemies[0] = new Missile(500, 375, 0);
+    if (enemies[1].dead()) enemies[1] = new Missile(500, 375, 0);
     //Not link
     link();
-
     //next screen mechanic & border
-    if (playery<=50&&time2>=900) {
+    if (playery<=50&&time>=900) {
       screen=15;
       playery=725;
       time=0;
-      time2=0;
       score=350;
+      specter = new Specter();
+      enemies[0] = new Missile(specter.getx(), specter.gety(), 0);
+      enemies[1] = new Missile(specter.getx(), specter.gety(), 55);
     } else if (playery<=0) {
       playery=7;
     }
     //time signal
     fill(160, 160, 200);
     textSize(25);
-    if (time2<=900) {
-      text("Time remaining: " + (15+(-1*(time2/60))), 320, 50);
+    if (time<=900) {
+      text("Time remaining: " + floor(15+(-1*(time/60))), 320, 50);
     } else {
       text("Go North!", 375, 50);
     }
@@ -392,82 +364,47 @@ void draw() {
   //wisdom branch 2 (15)
   if (screen==15) {
     background(100, 110, 110);
-    if (bluebossHealth>0) {
-      time=time+1;
-      time2=time2+1;
-      bluethetaSpeed=0.025;
-      bluebossx=500+300*cos(bluetheta);
-      bluebossy=375+250*sin(bluetheta);
-      //take damage
-      if ((dist(blueMissilex, blueMissiley, playerx, playery)<45)||(dist(blueMissile2x, blueMissile2y, playerx, playery)<45)) {
-        if (shield==false) {
-          playerHealth--;
-        } else {
-          playerHealth=playerHealth-0.2;
+    specter.all();
+    enemies[0].all();
+    enemies[1].all();
+    //reset missiles (time out missiles)
+    if (enemies[0].dead()) enemies[0] = new Missile(specter.getx(), specter.gety(), 0);
+    if (enemies[1].dead()) enemies[1] = new Missile(specter.getx(), specter.gety(), 0);
+    if (specter.dead()) {
+      if (gottriblue==false) {
+        time=time++;
+        background (125, 135, 135);
+        fill (100, 130, 150);
+        ellipse (0, 0, 400, 200);
+        ellipse (1000, 0, 400, 200);
+        ellipse (0, 0, 100, 800);
+        ellipse (1000, 0, 100, 800);
+        fill(170, 170, 220, 100-2*time);
+        ellipse(specter.getx(), specter.gety(), 100, 100);
+        fill (175, 190, 190);
+        ellipse (500, 200, 150, 150);
+        fill(252, 248, 36);
+        triangle(460, 220, 500, 150, 540, 220);
+        if (dist(playerx, playery, 500, 200) <50) {
+          gottriblue=true;
+          playerHealth=100;
         }
-      }
-      //reset missiles (time out missiles)
-      if (time>=110) {
-        time=0;
-        blueMissilex=bluebossx;
-        blueMissiley=bluebossy;
-      }
-      if (time>=54&&time<=56) {
-        blueMissile2x=bluebossx;
-        blueMissile2y=bluebossy;
-      }
-      //move missiles
-      moveBlueMissiles();
-      //Health bar
-      stroke(0, 0, 0);
-      strokeWeight(2);
-      noFill();
-      rect(bluebossx-51, bluebossy-66, 101, 11);
-      fill(100, 100, 200);
-      noStroke();
-      rect(bluebossx-50, bluebossy-65, bluebossHealth/2, 10);
-      //graphics
-      fill(175, 175, 225);
-      ellipse(bluebossx, bluebossy, 100, 100);
-      fill(175, 175, 225);
-      ellipse(blueMissilex, blueMissiley, 40, 40);
-      ellipse(blueMissile2x, blueMissile2y, 40, 40);
-      if (bluebossHealth<5) {
-        time=0;
-      }
-    } else if (gottriblue==false) {
-      playerHealth=100;
-      time=time++;
-      background (125, 135, 135);
-      fill (100, 130, 150);
-      ellipse (0, 0, 400, 200);
-      ellipse (1000, 0, 400, 200);
-      ellipse (0, 0, 100, 800);
-      ellipse (1000, 0, 100, 800);
-      fill(170, 170, 220, 100-2*time);
-      ellipse(bluebossx, bluebossy, 100, 100);
-      fill (175, 190, 190);
-      ellipse (500, 200, 150, 150);
-      fill(252, 248, 36);
-      triangle(460, 220, 500, 150, 540, 220);
-      if (dist(playerx, playery, 500, 200) <50) {
-        gottriblue=true;
-      }
-    } else {
-      background (125, 135, 135);
-      fill (100, 130, 150);
-      ellipse (0, 0, 400, 200);
-      ellipse (1000, 0, 400, 200);
-      ellipse (0, 0, 100, 800);
-      ellipse (1000, 0, 100, 800);
-      fill (175, 190, 190);
-      ellipse (500, 200, 150, 150);
-      textSize(35);
-      text ("You got a piece of the triforce! Go get the rest!", 190, 700);
-      if (playery>700) {
-        screen=11;
-        playery=50;
-        score=500;
+      } else {
+        background (125, 135, 135);
+        fill (100, 130, 150);
+        ellipse (0, 0, 400, 200);
+        ellipse (1000, 0, 400, 200);
+        ellipse (0, 0, 100, 800);
+        ellipse (1000, 0, 100, 800);
+        fill (175, 190, 190);
+        ellipse (500, 200, 150, 150);
+        textSize(35);
+        text ("You got a piece of the triforce! Go get the rest!", 190, 700);
+        if (playery>700) {
+          screen=11;
+          playery=50;
+          score=500;
+        }
       }
     }
     //Not link
@@ -1035,11 +972,6 @@ void checksAndResets() {
     time=time+0.166667;
     zeldax=zeldax+zeldaxSpeed;
     zelday=zelday+zeldaySpeed;
-    blueMissilex=blueMissilex+bluexSpeed;
-    blueMissiley=blueMissiley+blueySpeed;
-    blueMissile2x=blueMissile2x+bluex2Speed;
-    blueMissile2y=blueMissile2y+bluey2Speed;
-    bluetheta=bluetheta+bluethetaSpeed;
     rollTimer=rollTimer+rollTimerSpeed;
     spinSize=spinSize+spinSpeed;
     spinholdTimer=spinholdTimer+spinholdTimerSpeed;
@@ -1048,10 +980,7 @@ void checksAndResets() {
   if (clicked==true) {
     swordTimer=swordTimer+1;
   }
-  //reset bluetheta
-  if (bluetheta>=6.283) {
-    bluetheta=0;
-  }
+
   //reset zeldaTimer
   if (zeldaTimer>=250) {
     zeldaTimer=0;
@@ -1086,15 +1015,6 @@ void checksAndResets() {
   }
   if (shieldTimer>=120) {
     shieldTimer=120;
-  }
-  if (paused==false) {
-    //hit blueboss
-    if (dist(swordx2, swordy2, bluebossx, bluebossy)<=50) {
-      bluebossHealth=bluebossHealth-2;
-    }
-    if (dist(playerx, playery, bluebossx, bluebossy)<spinSize+25&&spin==true) {
-      bluebossHealth=bluebossHealth-3;
-    }
   }
   //game over mechanic
   if (playerHealth<=0) {
@@ -1193,37 +1113,6 @@ void bokoScreen() {
   }
 }
 
-void moveBlueMissiles() {
-  if (dist(playerx, playery, bluebossx, bluebossy)-65>=dist(blueMissilex, blueMissiley, bluebossx, bluebossy)) {
-    if (blueMissilex>=playerx) {
-      bluexSpeed=-5;
-    }
-    if (blueMissilex<=playerx) {
-      bluexSpeed=5;
-    }
-    if (blueMissiley>=playery) {
-      blueySpeed=-5;
-    }
-    if (blueMissiley<=playery) {
-      blueySpeed=5;
-    }
-  }
-  if (dist(playerx, playery, bluebossx, bluebossy)-65>=dist(blueMissile2x, blueMissile2y, bluebossx, bluebossy)) {
-    if (blueMissile2x>=playerx) {
-      bluex2Speed=-5;
-    }
-    if (blueMissile2x<=playerx) {
-      bluex2Speed=5;
-    }
-    if (blueMissile2y>=playery) {
-      bluey2Speed=-5;
-    }
-    if (blueMissile2y<=playery) {
-      bluey2Speed=5;
-    }
-  }
-}
-
 void reset() {
   playerx=(int)random(100, 900);
   playery=(int)random(100, 650);
@@ -1249,25 +1138,13 @@ void reset() {
   time2=0;
   scoretime=72000;
   score=0;
-  blueMissilex=500;
-  blueMissiley=375;
-  blueMissile2x=500;
-  blueMissile2y=375;
-  bluexSpeed=0;
-  blueySpeed=0;
-  bluex2Speed=0;
-  bluey2Speed=0;
-  bluetheta=0;
-  bluethetaSpeed=0;
-  bluebossx=-100;
-  bluebossy=-100;
-  bluebossHealth=200;
   greenbossx=500;
   greenbossy=375;
   greenbossHealth=150;
   bokogo=false;
   spin=false;
   paused=false;
+  enemies = new Enemy[5];
 }
 
 void playMusic() {
