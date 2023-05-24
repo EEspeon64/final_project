@@ -50,18 +50,13 @@ float time2=0;
 float scoretime=72000;
 float score=0;
 float finalscore;
-float greenbossx=500;
-float greenbossy=375;
-float greenbossHealth=150;
 boolean gotswordr=false;
 boolean gotswordm=false;
 boolean clicked=false;
-boolean ganonlocked=false;
 boolean gottri=false;
 boolean gottriblue=false;
 boolean gottrigreen=false;
 boolean gottriforce=false;
-boolean bokogo=false;
 boolean spin=false;
 boolean paused=false;
 boolean shield=false;
@@ -275,6 +270,12 @@ void draw() {
     gotswordm=true;
     noStroke();
     background(110, 77, 16.5);
+       
+    //debug
+    enemies[0] = new SwampMonster();
+    enemies[0].all();
+    //debug
+    
     //if (gottriblue==true&&gottrigreen==true) {
     fill(252, 248, 36);
     triangle(900, 420, 980, 420, 940, 350);
@@ -457,8 +458,6 @@ void draw() {
     if (playerx<50&&greenpath==2) {
       playerx=950;
       screen=17;
-      greenbossx=500;
-      greenbossy=375;
     }
   }
   //greenboss screen
@@ -1077,7 +1076,6 @@ void swordTutorScreen() {
   if (time<20) {
     text("It's dangerous to go alone!", 300, 160);
   } else if (time<40) {
-    bokogo=true;
     text("Take this!", 400, 160);
     strokeWeight(7);
     stroke(130, 90, 40);
@@ -1138,10 +1136,6 @@ void reset() {
   time2=0;
   scoretime=72000;
   score=0;
-  greenbossx=500;
-  greenbossy=375;
-  greenbossHealth=150;
-  bokogo=false;
   spin=false;
   paused=false;
   enemies = new Enemy[5];
