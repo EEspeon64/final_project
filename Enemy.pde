@@ -289,7 +289,7 @@ class Specter implements Enemy {
     ellipse(x, y, 100, 100);
   }
   void takeDamage() {
-    if (dist(swordx2, swordy2, x, y)<=25) {
+    if (dist(swordx2, swordy2, x, y) <= 50) {
       if (gotswordr==true) {
         health--;
       }
@@ -297,7 +297,7 @@ class Specter implements Enemy {
         health = health-2;
       }
     }
-    if (dist(playerx, playery, x, y) < spinSize && spin == true) {
+    if (dist(playerx, playery, x, y) < spinSize + 35 && spin == true) {
       if (gotswordr==true) {
         health = health - 2;
       }
@@ -312,6 +312,108 @@ class Specter implements Enemy {
     if (health <= 0) return true;
     return false;
   }
-  float getx() {return x;}
-  float gety() {return y;}
+  float getx() {
+    return x;
+  }
+  float gety() {
+    return y;
+  }
+}
+
+class SwampMonster implements Enemy {
+  float health;
+  float x;
+  float y;
+  float dx;
+  float dy;
+  float time;
+  float opacity;
+  SwampMonster() {
+    health = 100;
+    opacity = 255;
+    x = 500;
+    y = 350;
+    time = 0;
+    // x = 60 + random(880);
+    //  y = 60 + random(630);
+  }
+  void all() {
+    if (!dead()) {
+      show();
+      if (paused == false) {
+        act();
+        dealDamage();
+      }
+    }
+  }
+  void act() {
+    time++;
+    if (time < 300) {
+      takeDamage();
+      if (x<playerx) {
+        dx = 1;
+      }
+      if (x>playerx) {
+        dx = -1;
+      }
+      if (y<playery) {
+        dy = 1;
+      } else {
+        dy = -1;
+      }
+      x += dx;
+      y += dy;
+    } else if (time < 430) {
+      opacity = 255 - ((time - 300) / 2);
+    } else if (time < 435) {
+      x = playerx;
+      y = playery;
+    } else if (time < 520) {
+     opacity = (time - 435) * (255/85);
+    } else {
+      time = 0;
+    }
+  }
+  void show() {
+    noStroke();
+    fill(96, 126, 6, opacity);
+    ellipse(x, y, 100, 100);
+    fill(255, 255, 225, opacity);
+    ellipse(x, y - 15, 30, 30);
+    fill(0, opacity);
+    ellipse(x, y - 15, 10, 29);
+    fill(130, 0, 0, opacity);
+    ellipse(x, y - 15, 8, 25);
+  }
+  void takeDamage() {
+    if (dist(swordx2, swordy2, x, y) <= 50) {
+      if (gotswordr==true) {
+        health--;
+      }
+      if (gotswordm==true) {
+        health = health-2;
+      }
+    }
+    if (dist(playerx, playery, x, y) < spinSize + 35 && spin == true) {
+      if (gotswordr==true) {
+        health = health - 2;
+      }
+      if (gotswordm==true) {
+        health = health - 3;
+      }
+    }
+  }
+  void dealDamage() {
+    if ((dist(x, y, playerx, playery) < 50) && !dead() && paused == false) {
+      if (shield==false) {
+        playerHealth--;
+      } else {
+        playerHealth=playerHealth-0.2;
+      }
+    }
+  }
+  boolean dead() {
+    if (health <= 0) return true;
+    return false;
+  }
 }
