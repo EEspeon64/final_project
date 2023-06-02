@@ -328,28 +328,38 @@ class SwampMonster implements Enemy {
   float dy;
   float time;
   float opacity;
+  float waveRadius;
+  float waveSize;
+  float waveCenterx;
+  float waveCentery;
+  boolean wave;
   SwampMonster() {
-    health = 100;
+    health = 400;
     opacity = 255;
     x = 500;
     y = 350;
     time = 0;
+    waveRadius = 0;
+    waveCenterx = -50;
+    waveCentery = -50;
     // x = 60 + random(880);
     //  y = 60 + random(630);
   }
   void all() {
     if (!dead()) {
-      show();
       if (paused == false) {
         act();
-        dealDamage();
       }
+      show();
     }
   }
   void act() {
     time++;
     if (time < 300) {
       takeDamage();
+      dealDamage();
+      waveSize = (430 - time) / 20;
+      waveRadius += 5;
       if (x<playerx) {
         dx = 1;
       }
@@ -364,17 +374,41 @@ class SwampMonster implements Enemy {
       x += dx;
       y += dy;
     } else if (time < 430) {
-      opacity = 255 - ((time - 300) / 2);
+      opacity = 255 - ((time - 300) * 2);
+      waveRadius += 5;
+      waveSize = (430 - time) / 20;
     } else if (time < 435) {
+      wave = false;
       x = playerx;
       y = playery;
     } else if (time < 520) {
-     opacity = (time - 435) * (255/85);
+      opacity = (time - 435) * (255/85);
     } else {
+      waveRadius = 0;
+      waveCenterx = x;
+      waveCentery = y;
+      wave = true;
       time = 0;
     }
   }
   void show() {
+    if (wave) {
+      //wave
+      noFill();
+      strokeWeight(waveSize);
+      stroke(130, 0, 0, opacity);
+      ellipse(waveCenterx, waveCentery, waveRadius, waveRadius);
+      noStroke();
+    }
+    //Health bar
+    stroke(0, 0, 0, opacity);
+    strokeWeight(2);
+    noFill();
+    rect(x - 51, y - 66, 101, 11);
+    fill(96, 126, 6, opacity);
+    noStroke();
+    rect(x - 50, y - 65, health/4, 10);
+    //body
     noStroke();
     fill(96, 126, 6, opacity);
     ellipse(x, y, 100, 100);
@@ -404,11 +438,17 @@ class SwampMonster implements Enemy {
     }
   }
   void dealDamage() {
-    if ((dist(x, y, playerx, playery) < 50) && !dead() && paused == false) {
+    if ((dist(x, y, playerx, playery) < 50) && !dead() && !paused) {
       if (shield==false) {
         playerHealth--;
       } else {
         playerHealth=playerHealth-0.2;
+      }
+    }
+    if ((dist(waveCenterx, waveCentery, playerx, playery) < waveRadius/2 + 25) && (dist(waveCenterx, waveCentery, playerx, playery) > waveRadius/2 - 25) && !dead() && !paused && wave) {
+      if (shield==false) {
+        playerHealth--;
+        //println("owie " + waveRadius);
       }
     }
   }
