@@ -1,14 +1,16 @@
 import processing.sound.*;
 
-int playerx = 500;
-int playery = 325;
+int playerx = 600;
+int playery = 100;
+int savedPlayerx;
+int savedPlayery;
 int playerxSpeed=0;
 int playerySpeed=0;
 int healthr;
 int healthg;
 int healthb;
 float screen=11;
-float save=0;
+float saveScreen=0;
 int swordTimer=0;
 int roll=0;
 int rollTimer=0;
@@ -26,13 +28,9 @@ int shieldTimer=0;
 int greenpath;
 float treeRadius;
 float treeColorFactor;
-float tree1pos;
-float tree2pos;
-float tree3pos;
-float tree4pos;
-float tree5pos;
+float[] treepos = new float[5];
 float playerHealth = 100;
-float savePlayerHealth = 100;
+float savedPlayerHealth;
 float swordx0;
 float swordy0;
 float swordx1;
@@ -49,6 +47,7 @@ float time=0;
 float time2=0;
 float scoretime=72000;
 float score=0;
+float savedScore;
 float finalscore;
 boolean gotswordr=false;
 boolean gotswordm=false;
@@ -61,15 +60,22 @@ boolean spin=false;
 boolean paused=false;
 boolean shield=false;
 Enemy[] enemies = new Enemy[5];
+Enemy[] savedEnemies = new Enemy[5];
 Specter specter;
+Specter savedSpecter;
 PImage title;
 SoundFile fieldTheme;
 SoundFile titleTheme;
+SoundFile itemGet;
 void setup() {
   size(1000, 750);
   title=loadImage("titleLogo.png");
   titleTheme = new SoundFile(this, "titleTheme.mp3");
   fieldTheme = new SoundFile(this, "fieldTheme.mp3");
+  itemGet = new SoundFile(this, "itemGet.mp3");
+
+  //debug------------------------------------------------------------------------------------
+  //debug------------------------------------------------------------------------------------
 }
 void draw() {
   //debug
@@ -94,7 +100,8 @@ void draw() {
     noStroke();
     //retry button
     if (mousePressed&&mouseX>450&&mouseX<550&&mouseY>650&&mouseY<700) {
-      reset();
+      loadSave();
+      titleTheme.stop();
     }
   }
   //menu screen
@@ -266,16 +273,13 @@ void draw() {
   }
   // branch screen
   if (screen==11) {
-    time += 1.6666667;
     gotswordm=true;
     noStroke();
     background(110, 77, 16.5);
-       
+
     //debug
-    enemies[0] = new SwampMonster();
-    enemies[0].all();
     //debug
-    
+
     //if (gottriblue==true&&gottrigreen==true) {
     fill(252, 248, 36);
     triangle(900, 420, 980, 420, 940, 350);
@@ -307,11 +311,11 @@ void draw() {
       screen=16;
       playery=30;
       greenpath=0;
-      tree1pos=random(-25, 25);
-      tree2pos=random(-25, 25);
-      tree3pos=random(-25, 25);
-      tree4pos=random(-25, 25);
-      tree5pos=random(-25, 25);
+      treepos[0]=random(-25, 25);
+      treepos[1]=random(-25, 25);
+      treepos[2]=random(-25, 25);
+      treepos[3]=random(-25, 25);
+      treepos[4]=random(-25, 25);
       time=0;
     } else if (playerx > 975 ) { //&& gottriblue==true
       screen=5;
@@ -389,6 +393,7 @@ void draw() {
         if (dist(playerx, playery, 500, 200) <50) {
           gottriblue=true;
           playerHealth=100;
+          itemGet.play();
         }
       } else {
         background (125, 135, 135);
@@ -413,10 +418,8 @@ void draw() {
   }
   //courage branch 1
   if (screen==16) {
-    for (int n=0; n<15; n=n+1) {
-      treeRadius=random(135, 145);
-      treeColorFactor=random(0.9, 1.1);
-    }
+    treeRadius=random(135, 145);
+    treeColorFactor=random(0.9, 1.1);
     background(45, 25, 10);
     fill(50, 100, 70, 255-time*7);
     textSize(60);
@@ -426,48 +429,87 @@ void draw() {
 
     //trees
     fill(10*treeColorFactor, 50*treeColorFactor, 15*treeColorFactor, 160);
-    ellipse(150+tree1pos, 150+tree1pos, treeRadius, treeRadius);
+    ellipse(150+treepos[0], 150+treepos[0], treeRadius, treeRadius);
     fill(10*treeColorFactor, 40*treeColorFactor, 15*treeColorFactor, 150);
-    ellipse(850+tree2pos, 100+tree2pos, treeRadius, treeRadius);
+    ellipse(850+treepos[1], 100+treepos[1], treeRadius, treeRadius);
     fill(10*treeColorFactor, 50*treeColorFactor, 15*treeColorFactor, 150);
-    ellipse(170+tree3pos, 550+tree3pos, treeRadius+10, treeRadius+10);
+    ellipse(170+treepos[2], 550+treepos[2], treeRadius+10, treeRadius+10);
     fill(5*treeColorFactor, 40*treeColorFactor, 20*treeColorFactor, 200);
-    ellipse(900+tree4pos, 670+tree4pos, treeRadius-5, treeRadius-5);
+    ellipse(900+treepos[3], 670+treepos[3], treeRadius-5, treeRadius-5);
     fill(5*treeColorFactor, 50*treeColorFactor, 30*treeColorFactor, 150);
-    ellipse(575+tree5pos, 400+tree5pos, treeRadius+15, treeRadius+15);
-    println(greenpath);
+    ellipse(575+treepos[4], 400+treepos[4], treeRadius+15, treeRadius+15);
     //maze mechanic
     if (playerx>950&&greenpath==0) {
       playerx=50;
       greenpath=1;
-      tree1pos=random(-25, 25);
-      tree2pos=random(-25, 25);
-      tree3pos=random(-25, 25);
-      tree4pos=random(-25, 25);
-      tree5pos=random(-25, 25);
+      treepos[0]=random(-25, 25);
+      treepos[1]=random(-25, 25);
+      treepos[2]=random(-25, 25);
+      treepos[3]=random(-25, 25);
+      treepos[4]=random(-25, 25);
     }
     if (playery<50&&greenpath==1) {
       playery=700;
       greenpath=2;
-      tree1pos=random(-25, 25);
-      tree2pos=random(-25, 25);
-      tree3pos=random(-25, 25);
-      tree4pos=random(-25, 25);
-      tree5pos=random(-25, 25);
+      treepos[0]=random(-25, 25);
+      treepos[1]=random(-25, 25);
+      treepos[2]=random(-25, 25);
+      treepos[3]=random(-25, 25);
+      treepos[4]=random(-25, 25);
     }
     if (playerx<50&&greenpath==2) {
       playerx=950;
       screen=17;
+      enemies[0] = new SwampMonster();
     }
   }
   //greenboss screen
   if (screen==17) {
     background(50, 22, 8);
-    //Not link
-    link();
+    treeRadius=random(135, 145);
+    treeColorFactor=random(0.9, 1.1);
+    //trees
+    fill(10*treeColorFactor, 50*treeColorFactor, 15*treeColorFactor, 160);
+    ellipse(50, 60, treeRadius, treeRadius);
+    fill(10*treeColorFactor, 40*treeColorFactor, 15*treeColorFactor, 150);
+    ellipse(920, 60, treeRadius, treeRadius);
+    fill(10*treeColorFactor, 50*treeColorFactor, 15*treeColorFactor, 150);
+    ellipse(550, 90, treeRadius+10, treeRadius+10);
+    fill(5*treeColorFactor, 40*treeColorFactor, 20*treeColorFactor, 200);
+    ellipse(200, 660, treeRadius-5, treeRadius-5);
+    fill(5*treeColorFactor, 50*treeColorFactor, 30*treeColorFactor, 150);
+    ellipse(600, 670, treeRadius+15, treeRadius+15);
+    fill(5*treeColorFactor, 50*treeColorFactor, 30*treeColorFactor, 150);
+    ellipse(100, 370, treeRadius+20, treeRadius+20);
+    fill(10*treeColorFactor, 50*treeColorFactor, 25*treeColorFactor, 150);
+    ellipse(900, 570, treeRadius+25, treeRadius+25);
+    enemies[0].all();
 
-    //frogger (greenboss)
-    //(ellipse (greenbossx
+    if (enemies[0].dead()) {
+      if (gottrigreen==false) {
+        fill (175, 190, 175);
+        ellipse (500, 300, 150, 150);
+        fill(252, 248, 36);
+        triangle(460, 220, 500, 150, 540, 220);
+        if (dist(playerx, playery, 500, 200) < 50) {
+          gottrigreen=true;
+          playerHealth=100;
+          itemGet.play();
+        }
+      } else {
+        fill (175, 190, 175);
+        ellipse (500, 300, 150, 150);
+        textSize(35);
+        text ("You got a piece of the triforce! Go get the rest!", 190, 700);
+        if (playery > 700 || playerx > 950) {
+          screen=11;
+          playery=50;
+          score=500;
+        }
+      }
+    }
+
+    link();
   }
   //boko screen 2
   if (screen==5) {
@@ -572,7 +614,7 @@ void draw() {
     //retry button
     if (mousePressed&&mouseX>450&&mouseX<550&&mouseY>650&&mouseY<700) {
       reset();
-      screen = 0;
+      titleTheme.stop();
     }
   }
   if (screen==9) {
@@ -744,31 +786,55 @@ void draw() {
       playerx=968;
     }
   }
+  //paused text
+  if (paused==true&&screen>0) {
+    fill(70, 100, 60);
+    textSize(150);
+    text("Paused", 250, 400);
+  }
 }
 
 void keyPressed() {
   if (paused==false) {
-    if (key=='w') {
-      playerySpeed=-8;
-      facingL=4;
-    }
-    if (key=='a') {
-      playerxSpeed=-8;
-      facingL=2;
-    }
-    if (key=='s') {
-      playerySpeed=8;
-      facingL=3;
-    }
-    if (key=='d') {
-      playerxSpeed=8;
-      facingL=1;
+    if (shield == false) {
+      if (key=='w') {
+        playerySpeed=-8;
+        facingL=4;
+      }
+      if (key=='a') {
+        playerxSpeed=-8;
+        facingL=2;
+      }
+      if (key=='s') {
+        playerySpeed=8;
+        facingL=3;
+      }
+      if (key=='d') {
+        playerxSpeed=8;
+        facingL=1;
+      }
+    } else {
+      if (key=='w') {
+        playerySpeed=-1;
+        facingL=4;
+      }
+      if (key=='a') {
+        playerxSpeed=-1;
+        facingL=2;
+      }
+      if (key=='s') {
+        playerySpeed=1;
+        facingL=3;
+      }
+      if (key=='d') {
+        playerxSpeed=1;
+        facingL=1;
+      }
     }
   }
   if (key=='f') {
     if (screen!=-1) {
-      save=screen;
-      savePlayerHealth = playerHealth + (0.25 * (100 - playerHealth));
+      saveGame();
     }
     savezeldaHealth=zeldaHealth;
   }
@@ -956,6 +1022,14 @@ void sword() {
   }
 }
 
+void saveGame() {
+  saveScreen = screen;
+  savedEnemies = enemies;
+  savedSpecter = specter;
+  savedPlayerx = playerx;
+  savedPlayerHealth = playerHealth;
+  savedPlayery = playery;
+}
 
 void checksAndResets() {
   //checks and resets
@@ -1018,6 +1092,7 @@ void checksAndResets() {
   //game over mechanic
   if (playerHealth<=0) {
     screen=-1;
+    fieldTheme.stop();
   }
   //paused text
   if (paused==true&&screen>0) {
@@ -1111,12 +1186,12 @@ void bokoScreen() {
   }
 }
 
-void reset() {
-  playerx=(int)random(100, 900);
-  playery=(int)random(100, 650);
+void loadSave() {
+  playerx=savedPlayerx;
+  playery=savedPlayery;
   playerxSpeed=0;
   playerySpeed=0;
-  screen=save;
+  screen=saveScreen;
   swordTimer=0;
   roll=0;
   rollTimer=0;
@@ -1126,7 +1201,37 @@ void reset() {
   trifade=255;
   spinSize=-10;
   shieldTimer=0;
-  playerHealth=savePlayerHealth;
+  playerHealth=savedPlayerHealth;
+  zeldax=500;
+  zelday=355;
+  zeldaxSpeed=0;
+  zeldaySpeed=0;
+  zeldaHealth=400;
+  time=0;
+  time2=0;
+  score=savedScore;
+  spin=false;
+  paused=false;
+  enemies = savedEnemies;
+  specter = savedSpecter;
+}
+
+void reset() {
+  playerx=(int)random(100, 900);
+  playery=(int)random(100, 650);
+  playerxSpeed=0;
+  playerySpeed=0;
+  screen=0;
+  swordTimer=0;
+  roll=0;
+  rollTimer=0;
+  rollTimerSpeed=0;
+  facingL=1;
+  zeldaTimer=0;
+  trifade=255;
+  spinSize=-10;
+  shieldTimer=0;
+  playerHealth=100;
   zeldax=500;
   zelday=355;
   zeldaxSpeed=0;
@@ -1142,9 +1247,9 @@ void reset() {
 }
 
 void playMusic() {
-  if ((screen == 0 || screen==1) && !titleTheme.isPlaying()) {
+  if ((screen == 0 || screen==1 || screen==-1) && !titleTheme.isPlaying()) {
     titleTheme.play();
-  } else if (screen != 0 && screen != 1 && !fieldTheme.isPlaying()) {
+  } else if (screen != 0 && screen != 1 && screen != -1 && !fieldTheme.isPlaying()) {
     titleTheme.stop();
     fieldTheme.play();
   }
