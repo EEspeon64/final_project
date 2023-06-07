@@ -75,6 +75,7 @@ void setup() {
   itemGet = new SoundFile(this, "itemGet.mp3");
 
   //debug------------------------------------------------------------------------------------
+  enemies[0] = new Adlez();
   //debug------------------------------------------------------------------------------------
 }
 void draw() {
@@ -100,8 +101,12 @@ void draw() {
     noStroke();
     //retry button
     if (mousePressed&&mouseX>450&&mouseX<550&&mouseY>650&&mouseY<700) {
-      loadSave();
       titleTheme.stop();
+      if(savedPlayerHealth > 0) {
+        loadSave();
+      } else {
+        reset();
+      }
     }
   }
   //menu screen
@@ -163,11 +168,21 @@ void draw() {
   if (screen == 1.5) {
     noStroke();
     background(110, 77, 16.5);
+    //path
+    fill(#A0937E);
+    for(int x = 10; x <1000; x += 100) {
+     rect(x, 400, 90, 65); 
+    }
+    for(int x = -40; x <1000; x += 100) {
+     rect(x, 470, 90, 65); 
+    }
+    ellipse(500, 200, 240, 300);
     fill(55, 37, 18.2);
     rect(0, 0, 1000, 200);
     fill(0);
     ellipse(500, 50, 200, 100);
     rect(400, 50, 200, 150);
+    ellipse(500, 200, 200, 50);
     link();
     //walls and enter cave
     if (playerx>400 && playerx < 600 && playery < 210) {
@@ -278,6 +293,8 @@ void draw() {
     background(110, 77, 16.5);
 
     //debug
+    enemies[0].show();
+    enemies[0].act();
     //debug
 
     //if (gottriblue==true&&gottrigreen==true) {
@@ -346,7 +363,7 @@ void draw() {
     //Not link
     link();
     //next screen mechanic & border
-    if (playery<=50&&time>=900) {
+    if (playery<=50&&time>=00) { //--------------------------------------------------------------------------------------------------
       screen=15;
       playery=725;
       time=0;
@@ -369,9 +386,9 @@ void draw() {
   //wisdom branch 2 (15)
   if (screen==15) {
     background(100, 110, 110);
-    specter.all();
     enemies[0].all();
     enemies[1].all();
+    specter.all();
     //reset missiles (time out missiles)
     if (enemies[0].dead()) enemies[0] = new Missile(specter.getx(), specter.gety(), 0);
     if (enemies[1].dead()) enemies[1] = new Missile(specter.getx(), specter.gety(), 0);
@@ -490,7 +507,7 @@ void draw() {
         fill (175, 190, 175);
         ellipse (500, 300, 150, 150);
         fill(252, 248, 36);
-        triangle(460, 220, 500, 150, 540, 220);
+        triangle(460, 320, 500, 250, 540, 320);
         if (dist(playerx, playery, 500, 200) < 50) {
           gottrigreen=true;
           playerHealth=100;
@@ -531,8 +548,6 @@ void draw() {
   //ganon screen
   if (screen==6) {
     background(100, 70, 15);
-    enemies[0].all();
-    //Not link
     link();
     //trees
     fill(5, 125, 10);
@@ -542,6 +557,7 @@ void draw() {
     for (int m=25; m<1001; m=m+150) {
       ellipse(m, 740, 150, 150);
     }
+    enemies[0].all();
     //next screen mechanic and border
     if (playerx>=975 && enemies[0].dead()) {
       screen=7;
@@ -1142,6 +1158,10 @@ void checksAndResets() {
 
 void swordTutorScreen() {
   background(55, 37, 18.2);
+  fill(110, 77, 16.5);
+  ellipse(500, 750, 200, 300);
+  fill(110, 100, 90);
+  ellipse(500, 120, 120, 120);
   //old boi
   noStroke();
   fill(125, 88, 75);
@@ -1149,9 +1169,9 @@ void swordTutorScreen() {
   //old boi talking
   textSize(30);
   if (time<20) {
-    text("It's dangerous to go alone!", 300, 160);
+    text("It's dangerous to go alone!", 300, 40);
   } else if (time<40) {
-    text("Take this!", 400, 160);
+    text("Take this!", 400, 60);
     strokeWeight(7);
     stroke(130, 90, 40);
     line(472, 110, 472, 100);
@@ -1160,12 +1180,12 @@ void swordTutorScreen() {
     noStroke();
   } else if (!enemies[0].dead()) {
     gotswordr=true;
-    text("Oh no! Link! Kill the Bokoblin!", 275, 160);
+    text("Oh no! Link! Kill the Bokoblin!", 275, 40);
     //bokoblin
     enemies[0].all();
   } else {
     fill(125, 88, 75);
-    text("Thank you. I will heal your wounds. Go on, Link!", 200, 160);
+    text("Thank you. I will heal your wounds. Go on, Link!", 200, 40);
     playerHealth=100;
   }
 }
