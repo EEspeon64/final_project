@@ -9,7 +9,7 @@ int playerySpeed=0;
 int healthr;
 int healthg;
 int healthb;
-float screen=11;
+float screen=0;
 float saveScreen=0;
 int swordTimer=0;
 int roll=0;
@@ -69,8 +69,6 @@ void setup() {
   //debug------------------------------------------------------------------------------------
 }
 void draw() {
-  //debug
-  println(playerHealth);
   playMusic();
   checksAndResets();
   //game over screen
@@ -133,16 +131,13 @@ void draw() {
     //text
     textSize(75);
     fill(70, 100, 60);
-    text("Use wasd to move", 0, 80);
-    text("Use Shift+WASD to dash", 0, 160);
-    text("Click to slash your sword", 0, 240);
-    textSize(50);
-    text("Click and hold to use a Spin Attack", 0, 320);
-    textSize(75);
-    text("Press f to save your game", 0, 400);
-    text("Press q to pause the game", 0, 480);
-    text("Press space to shield", 0, 560);
-    //next screen mechanic
+    text("wasd - Move", 307, 80);
+    text("Shift+WASD - Dash", 102, 160);
+    text("Click - Sword Stab", 320, 240);
+    text("Click & Hold - Spin Attack", 98, 320);
+    text("F - Save Game", 438, 400);
+    text("Q - Pause Game", 427, 480);
+    text("Space - Shield", 288, 560);
     fill(24, 30, 15);
     textSize(15);
     text("Back to Menu", 457, 675);
