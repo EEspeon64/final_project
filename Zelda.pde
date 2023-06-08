@@ -136,7 +136,9 @@ void draw() {
     text("Use wasd to move", 0, 80);
     text("Use Shift+WASD to dash", 0, 160);
     text("Click to slash your sword", 0, 240);
+    textSize(50);
     text("Click and hold to use a Spin Attack", 0, 320);
+    textSize(75);
     text("Press f to save your game", 0, 400);
     text("Press q to pause the game", 0, 480);
     text("Press space to shield", 0, 560);
@@ -304,12 +306,12 @@ void draw() {
     //debug
     //debug
 
-    //if (gottriblue==true&&gottrigreen==true) {
-    fill(252, 248, 36);
-    triangle(900, 420, 980, 420, 940, 350);
-    fill(200, 10, 10);
-    ellipse(940, 395, 30, 30);
-    //}
+    if (gottriblue && gottrigreen) {
+      fill(252, 248, 36);
+      triangle(900, 420, 980, 420, 940, 350);
+      fill(200, 10, 10);
+      ellipse(940, 395, 30, 30);
+    }
     if (gottriblue==false) {
       fill(252, 248, 36);
       triangle(400, 100, 440, 30, 480, 100);
@@ -341,12 +343,11 @@ void draw() {
       treepos[3]=random(-25, 25);
       treepos[4]=random(-25, 25);
       time=0;
-    } else if (playerx > 975 ) { //&& gottriblue==true
+    } else if (playerx > 975 && gottriblue && gottrigreen) {
       screen=5;
       playerx=40;
       enemies[0] = new Boko(900, 325);
       enemies[1] = new Boko(300, 325);
-      //&&gottriforce==true
     } else if (playerx>975) {
       playerx=965;
     }
@@ -370,7 +371,7 @@ void draw() {
     //Not link
     link();
     //next screen mechanic & border
-    if (playery<=50&&time>=00) { //--------------------------------------------------------------------------------------------------
+    if (playery<=50&&time>=600) { //--------------------------------------------------------------------------------------------------
       screen=15;
       playery=725;
       time=0;
@@ -385,7 +386,7 @@ void draw() {
     fill(160, 160, 200);
     textSize(25);
     if (time<=900) {
-      text("Time remaining: " + floor(15+(-1*(time/60))), 320, 50);
+      text("Time remaining: " + floor(10+(-1*(time/60))), 320, 50);
     } else {
       text("Go North!", 375, 50);
     }
