@@ -1,4 +1,4 @@
-import processing.sound.*;
+import processing.sound.SoundFile;
 
 int playerx = 600;
 int playery = 100;
@@ -16,8 +16,6 @@ int roll=0;
 int rollTimer=0;
 int rollTimerSpeed=0;
 int facingL=1;
-int zeldaTimer=0;
-int trifade=255;
 int spinSize=-10;
 int spinSpeed;
 int spinSpeedtime;
@@ -37,12 +35,6 @@ float swordx1;
 float swordy1;
 float swordx2;
 float swordy2;
-float zeldax=500;
-float zelday=355;
-float zeldaxSpeed=0;
-float zeldaySpeed=0;
-float zeldaHealth=400;
-float savezeldaHealth;
 float time=0;
 float time2=0;
 float scoretime=72000;
@@ -52,10 +44,9 @@ float finalscore;
 boolean gotswordr=false;
 boolean gotswordm=false;
 boolean clicked=false;
-boolean gottri=false;
 boolean gottriblue=false;
 boolean gottrigreen=false;
-boolean gottriforce=false;
+boolean gottrired=false;
 boolean spin=false;
 boolean paused=false;
 boolean shield=false;
@@ -75,12 +66,11 @@ void setup() {
   itemGet = new SoundFile(this, "itemGet.mp3");
 
   //debug------------------------------------------------------------------------------------
-  enemies[0] = new Adlez();
   //debug------------------------------------------------------------------------------------
 }
 void draw() {
   //debug
-  //println("");
+  println(playerHealth);
   playMusic();
   checksAndResets();
   //game over screen
@@ -102,7 +92,7 @@ void draw() {
     //retry button
     if (mousePressed&&mouseX>450&&mouseX<550&&mouseY>650&&mouseY<700) {
       titleTheme.stop();
-      if(savedPlayerHealth > 0) {
+      if (savedPlayerHealth > 0) {
         loadSave();
       } else {
         reset();
@@ -169,12 +159,12 @@ void draw() {
     noStroke();
     background(110, 77, 16.5);
     //path
-    fill(#A0937E);
-    for(int x = 10; x <1000; x += 100) {
-     rect(x, 400, 90, 65); 
+    fill(135, 120, 90);
+    for (int x = 10; x <1000; x += 100) {
+      rect(x, 400, 90, 65);
     }
-    for(int x = -40; x <1000; x += 100) {
-     rect(x, 470, 90, 65); 
+    for (int x = -40; x <1000; x += 100) {
+      rect(x, 470, 90, 65);
     }
     ellipse(500, 200, 240, 300);
     fill(55, 37, 18.2);
@@ -291,10 +281,27 @@ void draw() {
     gotswordm=true;
     noStroke();
     background(110, 77, 16.5);
+    fill(135, 120, 90);
+    for (int x = 10; x <1000; x += 100) {
+      rect(x, 320, 90, 65);
+    }
+    for (int x = -40; x <1000; x += 100) {
+      rect(x, 390, 90, 65);
+    }
+    for (int y = 10; y < 750; y += 150) {
+      if (y < 300 || y > 355) {
+        rect(325, y, 90, 65);
+        rect(425, y, 90, 65);
+      }
+    }
+    for (int y = 85; y < 750; y += 150) {
+      if (y < 300 || y > 400) {
+        rect(375, y, 90, 65);
+        rect(475, y, 90, 65);
+      }
+    }
 
     //debug
-    enemies[0].show();
-    enemies[0].act();
     //debug
 
     //if (gottriblue==true&&gottrigreen==true) {
@@ -508,7 +515,7 @@ void draw() {
         ellipse (500, 300, 150, 150);
         fill(252, 248, 36);
         triangle(460, 320, 500, 250, 540, 320);
-        if (dist(playerx, playery, 500, 200) < 50) {
+        if (dist(playerx, playery, 500, 300) < 50) {
           gottrigreen=true;
           playerHealth=100;
           itemGet.play();
@@ -548,6 +555,24 @@ void draw() {
   //ganon screen
   if (screen==6) {
     background(100, 70, 15);
+    if (gottrired==false) {
+      fill (175, 190, 175);
+      ellipse (800, 300, 150, 150);
+      if (enemies[0].dead()) {
+        fill(252, 248, 36);
+        triangle(760, 320, 800, 250, 840, 320);
+        if (dist(playerx, playery, 800, 300) < 50) {
+          gottrired=true;
+          playerHealth=100;
+          itemGet.play();
+        }
+      }
+    } else {
+      fill (175, 190, 175);
+      ellipse (800, 300, 150, 150);
+      textSize(35);
+      text ("You got the last piece of the triforce! Go save Zelda!", 190, 700);
+    }
     link();
     //trees
     fill(5, 125, 10);
@@ -559,7 +584,7 @@ void draw() {
     }
     enemies[0].all();
     //next screen mechanic and border
-    if (playerx>=975 && enemies[0].dead()) {
+    if (playerx>=975 && enemies[0].dead() && gottrired == true) {
       screen=7;
       playerx=500;
       playery=700;
@@ -634,7 +659,6 @@ void draw() {
     }
   }
   if (screen==9) {
-    zeldaTimer++;
     background(95, 100, 95);
     if (playerx>975) {
       playerx=975;
@@ -647,14 +671,6 @@ void draw() {
     }
     if (playery<25) {
       playery=25;
-    }
-    //take damage
-    if (dist(zeldax, zelday, playerx, playery)<50) {
-      if (shield==false) {
-        playerHealth--;
-      } else {
-        playerHealth=playerHealth-0.2;
-      }
     }
     //possessed zelda/hilda
     if (time<60) {
@@ -673,89 +689,19 @@ void draw() {
         text("You have revealed my true identity,", 250, 400);
       } else if (time<60) {
         text("You will never save Zelda!", 300, 400);
+        enemies[0] = new Adlez();
+        saveGame();
       }
-    } else if (time>60) {
-      //hit possessed zelda/hilda
-      if (paused==false) {
-        if (dist(swordx2, swordy2, zeldax, zelday)<=25) {
-          zeldaHealth=zeldaHealth-2;
-        }
-        if (dist(playerx, playery, zeldax, zelday)<spinSize&&spin==true) {
-          zeldaHealth=zeldaHealth-3;
-        }
-      }
-      if (zeldaHealth>0) {
-        fill(140, 10, 30);
-        ellipse(zeldax, zelday-10, 55, 55);
-        ellipse(zeldax-25, zelday+5, 5, 40);
-        ellipse(zeldax+25, zelday+5, 5, 40);
-        fill(235, 200, 200);
-        ellipse(zeldax, zelday, 50, 50);
-        //Health bar
-        stroke(0, 0, 0);
-        strokeWeight(2);
-        noFill();
-        rect(zeldax-26, zelday-41, 51, 11);
-        fill(200, 0, 0);
-        noStroke();
-        rect(zeldax-25, zelday-40, zeldaHealth/8, 10);
-        if (paused==false) {
-          if (zeldaTimer<=150) {
-            if (zeldax<playerx) {
-              zeldaxSpeed=5;
-            }
-            if (zeldax>playerx) {
-              zeldaxSpeed=-5;
-            }
-            if (zelday<playery) {
-              zeldaySpeed=5;
-            }
-            if (zelday>playery) {
-              zeldaySpeed=-5;
-            }
-          } else if (zeldaTimer<=200&&zeldaTimer>=175) {
-            if (zeldax<playerx) {
-              zeldaxSpeed=10;
-            }
-            if (zeldax>playerx) {
-              zeldaxSpeed=-10;
-            }
-            if (zelday<playery) {
-              zeldaySpeed=10;
-            }
-            if (zelday>playery) {
-              zeldaySpeed=-10;
-            }
-          } else if (zeldaTimer<225&&zeldaTimer>200) {
-            zeldaxSpeed=0;
-            zeldaySpeed=0;
-            fill(160, 15, 75, 175);
-            ellipse(zeldax, zelday, 150, 150);
-            fill(140, 10, 30);
-            ellipse(zeldax, zelday-10, 55, 55);
-            ellipse(zeldax-25, zelday+5, 5, 40);
-            ellipse(zeldax+25, zelday+5, 5, 40);
-            fill(235, 200, 200);
-            ellipse(zeldax, zelday, 50, 50);
-            //take damage
-            if (dist(zeldax, zelday, playerx, playery)<100) {
-              if (shield==false) {
-                playerHealth--;
-              } else {
-                playerHealth=playerHealth-0.2;
-              }
-            }
-          } else {
-            zeldaxSpeed=0;
-            zeldaySpeed=0;
-          }
-        }
-      } else {
-        screen=10;
-        playerx=500;
-        playery=600;
-        time=0;
-        score=1500;
+    } else {
+      enemies[0].all();
+    }
+    if (enemies[0].dead() && time > 60) {
+      fill(225);
+      ellipse(500, 750, 200, 50);
+      if (playery > 720 && playerx > 375 && playery < 625) {
+        playery = 0;
+        time = 0;
+        screen = 10;
       }
     }
     //Not link
@@ -852,7 +798,6 @@ void keyPressed() {
     if (screen!=-1) {
       saveGame();
     }
-    savezeldaHealth=zeldaHealth;
   }
   if (key==' '&&shieldTimer<=1) {
     shield=true;
@@ -1059,8 +1004,6 @@ void checksAndResets() {
   //add Speeds
   if (paused==false) {
     time=time+0.166667;
-    zeldax=zeldax+zeldaxSpeed;
-    zelday=zelday+zeldaySpeed;
     rollTimer=rollTimer+rollTimerSpeed;
     spinSize=spinSize+spinSpeed;
     spinholdTimer=spinholdTimer+spinholdTimerSpeed;
@@ -1070,10 +1013,6 @@ void checksAndResets() {
     swordTimer=swordTimer+1;
   }
 
-  //reset zeldaTimer
-  if (zeldaTimer>=250) {
-    zeldaTimer=0;
-  }
   //reset spinSize
   if (spinSize<=-25) {
     spinSize=-25;
@@ -1217,16 +1156,9 @@ void loadSave() {
   rollTimer=0;
   rollTimerSpeed=0;
   facingL=1;
-  zeldaTimer=0;
-  trifade=255;
   spinSize=-10;
   shieldTimer=0;
   playerHealth=savedPlayerHealth;
-  zeldax=500;
-  zelday=355;
-  zeldaxSpeed=0;
-  zeldaySpeed=0;
-  zeldaHealth=400;
   time=0;
   time2=0;
   score=savedScore;
@@ -1247,16 +1179,9 @@ void reset() {
   rollTimer=0;
   rollTimerSpeed=0;
   facingL=1;
-  zeldaTimer=0;
-  trifade=255;
   spinSize=-10;
   shieldTimer=0;
   playerHealth=100;
-  zeldax=500;
-  zelday=355;
-  zeldaxSpeed=0;
-  zeldaySpeed=0;
-  zeldaHealth=400;
   time=0;
   time2=0;
   scoretime=72000;
@@ -1264,6 +1189,8 @@ void reset() {
   spin=false;
   paused=false;
   enemies = new Enemy[5];
+  gotswordr = false;
+  gotswordm = false;
 }
 
 void playMusic() {
