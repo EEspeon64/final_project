@@ -238,7 +238,7 @@ class Missile implements Enemy {
     time++;
     x += dx;
     y += dy;
-    if (dist(playerx, playery, spawnx, spawny) - 35>=dist(x, y, spawnx, spawny)) {
+    if (dist(playerx, playery, spawnx, spawny) - 40 >= dist(x, y, spawnx, spawny)) {
       if (x>=playerx) {
         dx=-5;
       }
@@ -260,11 +260,13 @@ class Missile implements Enemy {
   void takeDamage() {
   }
   void dealDamage() {
-    if (dist(x, y, playerx, playery)<45) {
-      if (shield==false) {
-        playerHealth--;
-      } else {
-        playerHealth=playerHealth-0.2;
+    if (screen == 14 || !specter.dead()) {
+      if (dist(x, y, playerx, playery)<45) {
+        if (shield==false) {
+          playerHealth--;
+        } else {
+          playerHealth=playerHealth-0.2;
+        }
       }
     }
   }
@@ -516,15 +518,18 @@ class Adlez implements Enemy {
   float[] waveCentery;
   PVector[] missilePos;
   PVector[] missileVel;
+  int curMissile = 0;
 
   Adlez() {
     x = 500;
-    y = 375;
+    y = 350;
     health = 400;
     waveRadii = new float[3];
     dwaveRadii = new float[3];
     waveCenterx = new float[3];
     waveCentery = new float[3];
+    missilePos = new PVector[20];
+    missileVel = new PVector[20];
     opacity = 255;
   }
   void all() {
@@ -532,8 +537,6 @@ class Adlez implements Enemy {
       show();
       if (paused == false) {
         act();
-        takeDamage();
-        dealDamage();
       }
     }
   }
@@ -542,7 +545,25 @@ class Adlez implements Enemy {
     for (int n = 0; n < 3; n++) {
       waveRadii[n] += dwaveRadii[n];
     }
-    if (time < 200) {
+    if (time < 50) {
+      x += dx;
+      y += dy;
+      hitRadius = 25;
+      if (x<playerx) {
+        dx=2;
+      }
+      if (x>playerx) {
+        dx=-2;
+      }
+      if (y<playery) {
+        dy=2;
+      }
+      if (y>playery) {
+        dy=-2;
+      }
+      takeDamage();
+      dealDamage();
+    } else if (time < 200) {
       x += dx;
       y += dy;
       hitRadius = 25;
@@ -559,7 +580,7 @@ class Adlez implements Enemy {
         dy=-4;
       }
       takeDamage();
-      //dealDamage();
+      dealDamage();
     } else if (time < 255) {
       //reset waves
       for (int n = 0; n < 3; n++) {
@@ -612,38 +633,104 @@ class Adlez implements Enemy {
         dy=-2;
       }
       takeDamage();
-      //dealDamage();
+      dealDamage();
     } else if (time < 615) {
       hitRadius = 25;
       x += dx;
       y += dy;
       if (x<500) {
-        dx=5;
+        dx=10;
       }
       if (x>500) {
-        dx=-5;
+        dx=-10;
       }
       if (y<375) {
-        dy=5;
+        dy=10;
       }
       if (y>375) {
-        dy=-5;
+        dy=-10;
       }
       takeDamage();
       //dealDamage();
+      if (time > 610) {
+        curMissile = 0;
+        for (int n = 0; n < 20; n++) {
+          missilePos[n] = new PVector();
+          missileVel[n] = new PVector();
+          missilePos[n].x = x;
+          missilePos[n].y = y;
+          missileVel[n].x = 0;
+          missileVel[n].y = 0;
+        }
+      }
+    } else if (time < 900) {
+      for (int n = 0; n < 20; n++) {
+        missilePos[n].x += 10 * missileVel[n].x;
+        missilePos[n].y += 10 * missileVel[n].y;
+      }
+      if (((time - 617) % 20) == 0) {
+        missileVel[curMissile].x = playerx - x;
+        missileVel[curMissile].y = playery - y;
+        missileVel[curMissile].normalize();
+        curMissile++;
+      }
+      takeDamage();
+      dealDamage();
+    } else if (time < 1000) { // start charge pattern (50-75 ticks)
+      for (int n = 0; n < 20; n++) {
+        missilePos[n].x += missileVel[n].x;
+        missilePos[n].y += missileVel[n].y;
+      }
+      takeDamage();
+      dealDamage();
+    } else if (time < 1050) {
+      hitRadius = 25;
+      x += dx;
+      y += dy;
+      if (x<playerx) {
+        dx=7;
+      }
+      if (x>playerx) {
+        dx=-7;
+      }
+      if (y<playery) {
+        dy=7;
+      }
+      if (y>playery) {
+        dy=-7;
+      }
+      takeDamage();
+      dealDamage();
+    } else if (time < 1150) {
+      hitRadius = 300 * sin((time - 1050) * 0.0314159265); // pi / 50
+      takeDamage();
+      dealDamage();
+    } else if (time < 1300) {
+      takeDamage();
+      dealDamage();
     } else {
-     time = 0; 
+      time = 0;
     }
   }
   void show() {
     //waves
     for (int n = 0; n < 3; n++) {
       noFill();
-      strokeWeight(5);
+      strokeWeight(10);
       stroke(130, 0, 0);
       ellipse(waveCenterx[n], waveCentery[n], waveRadii[n], waveRadii[n]);
       noStroke();
     }
+    //missiles
+    if (time > 615 && time < 950) {
+      for (int n = 0; n < 20; n++) {
+        fill(140, 10, 30);
+        ellipse(missilePos[n].x, missilePos[n].y, 20, 20);
+      }
+    }
+    //damage bubble
+    fill(140, 10, 30, opacity - 75);
+    ellipse(x, y, hitRadius, hitRadius);
     //body
     fill(140, 10, 30, opacity);
     ellipse(x, y-10, 55, 55);
@@ -672,14 +759,36 @@ class Adlez implements Enemy {
     }
   }
   void dealDamage() {
-    if ((dist(x, y, playerx, playery) < 100) && !dead() && paused == false) {
+    //body damage
+    if ((dist(x, y, playerx, playery) < 25 + hitRadius) && !dead() && paused == false) {
       if (shield==false) {
         playerHealth--;
       } else {
         playerHealth=playerHealth-0.2;
       }
     }
+    //wave damage
+    if (time > 455 && time < 615) {
+      for (int n = 0; n < 3; n++) {
+        if ((dist(waveCenterx[n], waveCentery[n], playerx, playery) > waveRadii[n] - 30) && (dist(waveCenterx[n], waveCentery[n], playerx, playery) < waveRadii[n] + 30)) {
+          if (shield==false) {
+            playerHealth--;
+          }
+        }
+      }
+    }
+    //missile damage
+    if (time > 900 && time < 1050) {
+      for (int n = 0; n < 20; n++) {
+        if (dist(missilePos[n].x, missilePos[n].y, playerx, playery) < 40) {
+          if (shield==false) {
+            playerHealth--;
+          }
+        }
+      }
+    }
   }
+
   boolean dead() {
     if (health <= 0) return true;
     return false;
