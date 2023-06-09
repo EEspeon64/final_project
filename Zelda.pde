@@ -378,7 +378,7 @@ void draw() {
     //time signal
     fill(160, 160, 200);
     textSize(25);
-    if (time<=900) {
+    if (time<=600) {
       text("Time remaining: " + floor(10+(-1*(time/60))), 320, 50);
     } else {
       text("Go North!", 375, 50);
