@@ -37,10 +37,8 @@ float swordx2;
 float swordy2;
 float time=0;
 float time2=0;
-float scoretime=72000;
 float score=0;
 float savedScore;
-float finalscore;
 boolean gotswordr=false;
 boolean gotswordm=false;
 boolean clicked=false;
@@ -64,22 +62,18 @@ void setup() {
   titleTheme = new SoundFile(this, "titleTheme.mp3");
   fieldTheme = new SoundFile(this, "fieldTheme.mp3");
   itemGet = new SoundFile(this, "itemGet.mp3");
-
-  //debug------------------------------------------------------------------------------------
-  //debug------------------------------------------------------------------------------------
 }
 void draw() {
   playMusic();
   checksAndResets();
   //game over screen
   if (screen==-1) {
-    finalscore=score;
     background(125, 85, 85);
     textSize(100);
     fill(62.5, 42.5, 42.5);
     text("Game Over", 200, 200);
     textSize(50);
-    text("Score: "+finalscore, 250, 300);
+    text("Score: "+score, 250, 300);
     textSize(10);
     text("Click Here to Retry", 455, 675);
     strokeWeight(7);
@@ -366,11 +360,15 @@ void draw() {
     //Not link
     link();
     //next screen mechanic & border
-    if (playery<=50&&time>=600) { //--------------------------------------------------------------------------------------------------
+    if (playery<=50&&time>=600) {
       screen=15;
       playery=725;
       time=0;
-      score=350;
+      if (gottrigreen) {
+        score = 550;
+      } else {
+        score = 300;
+      }
       specter = new Specter();
       enemies[0] = new Missile(specter.getx(), specter.gety(), 0);
       enemies[1] = new Missile(specter.getx(), specter.gety(), 55);
@@ -429,7 +427,11 @@ void draw() {
         if (playery>700) {
           screen=11;
           playery=50;
-          score=500;
+          if (gottrigreen) {
+            score = 750;
+          } else {
+            score = 500;
+          }
         }
       }
     }
@@ -481,6 +483,11 @@ void draw() {
       playerx=950;
       screen=17;
       enemies[0] = new SwampMonster();
+      if (gottriblue) {
+        score = 550;
+      } else {
+        score = 300;
+      }
     }
   }
   //greenboss screen
@@ -524,7 +531,11 @@ void draw() {
         if (playery > 700 || playerx > 950) {
           screen=11;
           playery=50;
-          score=500;
+          if (gottrigreen) {
+            score = 750;
+          } else {
+            score = 600;
+          }
         }
       }
     }
@@ -543,7 +554,7 @@ void draw() {
       time=0;
       enemies[0] = new Ganon(800, 350);
       enemies[1] = null;
-      score=600;
+      score = 800;
     } else if (playerx>=975) {
       playerx=968;
     }
@@ -561,6 +572,7 @@ void draw() {
           gottrired=true;
           playerHealth=100;
           itemGet.play();
+          score = 1000;
         }
       }
     } else {
@@ -634,13 +646,12 @@ void draw() {
   }
   //win screen
   if (screen==8) {
-    finalscore=score+(scoretime/60);
     background(85, 125, 85);
     textSize(100);
     fill(42.5, 62.5, 42.5);
     text("You Won!", 250, 200);
     textSize(50);
-    text("Score: "+finalscore, 250, 300);
+    text("Score: "+score, 250, 300);
     textSize(10);
     text("Click Here to Replay", 455, 675);
     strokeWeight(7);
@@ -676,6 +687,12 @@ void draw() {
       ellipse(525, 360, 5, 40);
       fill(235, 200, 200);
       ellipse(500, 350, 50, 50);
+      fill(240, 235, 0);
+      ellipse(500 - 13, 350 - 5, 13, 13);
+      ellipse(500 + 13, 350 - 5, 13, 13);
+      fill(50, 0, 0);
+      ellipse(500 - 13, 350 - 5, 3, 13);
+      ellipse(500 + 13, 350 - 5, 3, 13);
       fill(140, 10, 30);
       textSize(30);
       //zelda talking
@@ -698,6 +715,7 @@ void draw() {
         playery = 0;
         time = 0;
         screen = 10;
+        score = 9999;
       }
     }
     //Not link
@@ -986,13 +1004,11 @@ void saveGame() {
   savedPlayerx = playerx;
   savedPlayerHealth = playerHealth;
   savedPlayery = playery;
+  savedScore = score;
 }
 
 void checksAndResets() {
   //checks and resets
-  if (paused==false&&screen!=8&&scoretime>0) {
-    scoretime--;
-  }
   if (screen!=10 && paused == false) {
     playerx=playerx+playerxSpeed;
     playery=playery+playerySpeed;
@@ -1180,13 +1196,13 @@ void reset() {
   playerHealth=100;
   time=0;
   time2=0;
-  scoretime=72000;
   score=0;
   spin=false;
   paused=false;
   enemies = new Enemy[5];
   gotswordr = false;
   gotswordm = false;
+  saveGame();
 }
 
 void playMusic() {
