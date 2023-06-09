@@ -576,7 +576,7 @@ void draw() {
           score = 1000;
         }
       }
-    } 
+    }
     link();
     //trees
     fill(5, 125, 10);
@@ -586,11 +586,11 @@ void draw() {
     for (int m=25; m<1001; m=m+150) {
       ellipse(m, 740, 150, 150);
     }
-    if(gottrired) {
-     fill (175, 190, 175);
+    if (gottrired) {
+      fill (175, 190, 175);
       ellipse (800, 300, 150, 150);
       textSize(35);
-      text ("You got the last piece of the triforce! Go save Zelda!", 190, 700); 
+      text ("You got the last piece of the triforce! Go save Zelda!", 190, 700);
     }
     enemies[0].all();
     //next screen mechanic and border
@@ -1172,7 +1172,11 @@ void loadSave() {
   facingL=1;
   spinSize=-10;
   shieldTimer=0;
-  playerHealth=savedPlayerHealth;
+  if (screen != 9) {
+    playerHealth=savedPlayerHealth;
+  } else {
+    playerHealth = 100;
+  }
   time=0;
   time2=0;
   score=savedScore;
