@@ -530,7 +530,8 @@ void draw() {
         text ("You got a piece of the triforce! Go get the rest!", 190, 700);
         if (playery > 700 || playerx > 950) {
           screen=11;
-          playery=50;
+          playery = 650;
+          playerx = 500;
           if (gottrigreen) {
             score = 750;
           } else {
