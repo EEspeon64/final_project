@@ -1,7 +1,7 @@
 import processing.sound.SoundFile;
 
-int playerx = 600;
-int playery = 100;
+int playerx = 100;
+int playery = 500;
 int savedPlayerx;
 int savedPlayery;
 int playerxSpeed=0;
@@ -1187,8 +1187,8 @@ void loadSave() {
 }
 
 void reset() {
-  playerx=(int)random(100, 900);
-  playery=(int)random(100, 650);
+  playerx=100;
+  playery=400;
   playerxSpeed=0;
   playerySpeed=0;
   screen=0;
