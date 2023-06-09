@@ -384,8 +384,6 @@ class SwampMonster implements Enemy {
     waveRadius = 0;
     waveCenterx = -50;
     waveCentery = -50;
-    // x = 60 + random(880);
-    //  y = 60 + random(630);
   }
   void all() {
     if (!dead()) {
@@ -738,6 +736,12 @@ class Adlez implements Enemy {
     ellipse(x+25, y+5, 5, 40);
     fill(235, 200, 200, opacity);
     ellipse(x, y, 50, 50);
+    fill(240, 235, 0);
+    ellipse(x - 13, y - 5, 13, 13);
+    ellipse(x + 13, y - 5, 13, 13);
+    fill(50, 0, 0);
+    ellipse(x - 13, y - 5, 3, 13);
+    ellipse(x + 13, y - 5, 3, 13);
     //Health bar
     fill(255);
     textSize(50);
