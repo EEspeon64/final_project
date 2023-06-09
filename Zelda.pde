@@ -530,7 +530,7 @@ void draw() {
         text ("You got a piece of the triforce! Go get the rest!", 190, 700);
         if (playery > 700 || playerx > 950) {
           screen=11;
-          playery = 650;
+          playery=650;
           playerx = 500;
           if (gottrigreen) {
             score = 750;
@@ -576,12 +576,7 @@ void draw() {
           score = 1000;
         }
       }
-    } else {
-      fill (175, 190, 175);
-      ellipse (800, 300, 150, 150);
-      textSize(35);
-      text ("You got the last piece of the triforce! Go save Zelda!", 190, 700);
-    }
+    } 
     link();
     //trees
     fill(5, 125, 10);
@@ -590,6 +585,12 @@ void draw() {
     }
     for (int m=25; m<1001; m=m+150) {
       ellipse(m, 740, 150, 150);
+    }
+    if(gottrired) {
+     fill (175, 190, 175);
+      ellipse (800, 300, 150, 150);
+      textSize(35);
+      text ("You got the last piece of the triforce! Go save Zelda!", 190, 700); 
     }
     enemies[0].all();
     //next screen mechanic and border
