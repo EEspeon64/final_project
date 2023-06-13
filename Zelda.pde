@@ -712,9 +712,9 @@ void draw() {
     }
     if (enemies[0].dead() && time > 60) {
       fill(225);
-      ellipse(500, 750, 200, 50);
-      if (playery > 720 && playerx > 375 && playery < 625) {
-        playery = 0;
+      ellipse(500, 0, 300, 50);
+      if (playery < 100 && playerx > 375 && playerx < 625) {
+        playery = 700;
         time = 0;
         screen = 10;
         score = 9999;
